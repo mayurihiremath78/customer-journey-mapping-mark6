@@ -1,90 +1,90 @@
 import React from 'react';
-import { Check, AlertCircle } from 'lucide-react';
-import { JourneyStage } from '../../types';
 
 interface JourneyStepsProps {
-  stages: JourneyStage[];
-  currentStage: string;
-  onSelectStage: (stage: string) => void;
+  currentStep: string;
+  onStepChange: (step: string) => void;
+  completedSteps?: string[]; // Add this to track completed steps
 }
 
-const JourneySteps: React.FC<JourneyStepsProps> = ({
-  stages,
-  currentStage,
-  onSelectStage,
+const JourneySteps: React.FC<JourneyStepsProps> = ({ 
+  currentStep, 
+  onStepChange,
+  completedSteps = [] 
 }) => {
-  const stageInfo = {
-    awareness: {
-      title: 'Awareness',
-      description: 'How you discovered the product',
-    },
-    consideration: {
-      title: 'Consideration',
-      description: 'Research and alternatives you considered',
-    },
-    purchase: {
-      title: 'Purchase',
-      description: 'Why and where you made your purchase',
-    },
-    'post-purchase': {
-      title: 'Post-Purchase',
-      description: 'Your experience using the product',
-    },
-    support: {
-      title: 'Support',
-      description: 'Any service or support interactions',
-    },
-  };
+  const steps = [
+    { id: 'awareness', name: 'Awareness' },
+    { id: 'consideration', name: 'Consideration' },
+    { id: 'purchase', name: 'Purchase' },
+    { id: 'postPurchase', name: 'Post-Purchase' },
+    { id: 'support', name: 'Support' }
+  ];
 
   return (
-    <div className="mb-8">
-      <div className="relative">
-        <div className="absolute top-5 left-5 w-[calc(100%-40px)] h-0.5 bg-gray-200 z-0"></div>
-        <ol className="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-4">
-          {stages.map((stage) => {
-            const isActive = stage.stageName === currentStage;
-            const info = stageInfo[stage.stageName];
-            
-            return (
-              <li 
-                key={stage.stageName}
-                className={`flex flex-col items-center ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
-                onClick={() => onSelectStage(stage.stageName)}
+    <div className="my-6">
+      <div className="flex items-center justify-between w-full mb-2">
+        {steps.map((step, index) => {
+          const isCompleted = completedSteps.includes(step.id);
+          const isCurrent = currentStep === step.id;
+          
+          return (
+            <React.Fragment key={step.id}>
+              {/* Step button */}
+              <button
+                onClick={() => onStepChange(step.id)}
+                className={`rounded-full h-12 w-12 flex items-center justify-center z-10 transition-colors
+                  ${isCurrent 
+                    ? 'bg-indigo-600 text-white' 
+                    : isCompleted
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}
               >
-                <div 
-                  className={`
-                    flex items-center justify-center w-10 h-10 rounded-full
-                    ${stage.completed 
-                      ? 'bg-green-100 text-green-600' 
-                      : isActive 
-                        ? 'bg-indigo-100 text-indigo-600 ring-2 ring-indigo-600 ring-offset-2' 
-                        : 'bg-gray-100 text-gray-500'
-                    }
-                    transition-all duration-200
-                  `}
-                >
-                  {stage.completed ? (
-                    <Check size={18} />
-                  ) : (
-                    <span className="text-sm font-semibold">{stages.indexOf(stage) + 1}</span>
-                  )}
-                </div>
-                <div className="mt-2 text-center">
-                  <h3 
-                    className={`text-sm font-semibold ${
-                      isActive ? 'text-indigo-900' : 'text-gray-700'
-                    }`}
-                  >
-                    {info.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 hidden md:block">
-                    {info.description}
-                  </p>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
+                {isCompleted && !isCurrent ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  index + 1
+                )}
+              </button>
+              
+              {/* Connecting line */}
+              {index < steps.length - 1 && (
+                <div className={`h-1 flex-grow mx-2 ${
+                    index < steps.indexOf(steps.find(s => s.id === currentStep) || steps[0]) || 
+                    (completedSteps.includes(step.id) && completedSteps.includes(steps[index + 1].id))
+                      ? 'bg-indigo-600' 
+                      : 'bg-gray-200'
+                  }`}
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {/* Step labels */}
+      <div className="flex items-center justify-between w-full mt-1">
+        {steps.map((step) => {
+          const isCompleted = completedSteps.includes(step.id);
+          const isCurrent = currentStep === step.id;
+          
+          return (
+            <div 
+              key={`label-${step.id}`}
+              className={`text-xs ${
+                isCurrent 
+                  ? 'text-indigo-600 font-medium' 
+                  : isCompleted
+                    ? 'text-green-500 font-medium'
+                    : 'text-gray-500'
+                }`}
+              style={{ width: '20%', textAlign: 'center' }}
+            >
+              {step.name}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -1,89 +1,42 @@
 import React from 'react';
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  Legend
-} from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface JourneyMapChartProps {
   data: any[];
-  title?: string;
+  title: string;
   height?: number;
-  className?: string;
 }
 
-const JourneyMapChart: React.FC<JourneyMapChartProps> = ({ 
-  data, 
-  title,
-  height = 300,
-  className = '',
-}) => {
+const JourneyMapChart: React.FC<JourneyMapChartProps> = ({ data, title, height = 300 }) => {
+  // Generate unique colors for each brand
+  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#ff0000', '#00C49F'];
+  
+  // Extract brand names (keys in the data that are not 'name')
+  const brandKeys = Object.keys(data[0] || {}).filter(key => key !== 'name');
+  
   return (
-    <div className={`${className}`}>
-      {title && (
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      )}
+    <div>
+      <h3 className="text-lg font-medium text-gray-700 mb-4">{title}</h3>
       <div style={{ width: '100%', height }}>
         <ResponsiveContainer>
-          <AreaChart
-            data={data}
-            margin={{
-              top: 10,
-              right: 30,
-              left: 0,
-              bottom: 0,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
-            <Tooltip 
-              contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #f0f0f0',
-                borderRadius: '4px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-              }}
-            />
+            <Tooltip />
             <Legend />
-            <Area 
-              type="monotone" 
-              dataKey="apple" 
-              stackId="1" 
-              stroke="#FF6B6B" 
-              fill="#FF6B6B" 
-              name="Apple" 
-            />
-            <Area 
-              type="monotone" 
-              dataKey="sony" 
-              stackId="1" 
-              stroke="#4ECDC4" 
-              fill="#4ECDC4" 
-              name="Sony" 
-            />
-            <Area 
-              type="monotone" 
-              dataKey="bose" 
-              stackId="1" 
-              stroke="#1A535C" 
-              fill="#1A535C" 
-              name="Bose" 
-            />
-            <Area 
-              type="monotone" 
-              dataKey="sennheiser" 
-              stackId="1" 
-              stroke="#FFE66D" 
-              fill="#FFE66D" 
-              name="Sennheiser" 
-            />
-          </AreaChart>
+            
+            {/* Dynamically create lines for each brand */}
+            {brandKeys.map((key, index) => (
+              <Line 
+                key={key}
+                type="monotone"
+                dataKey={key}
+                stroke={colors[index % colors.length]} 
+                activeDot={{ r: 8 }}
+              />
+            ))}
+          </LineChart>
         </ResponsiveContainer>
       </div>
     </div>
